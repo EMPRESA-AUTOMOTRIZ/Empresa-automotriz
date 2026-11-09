@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <title>Recuperar contraseña | AutoPartes Pro</title>
+
+  <style>
+    body {
+      background: #101827;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .caja {
+      background: #1c293b;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 380px;
+    }
+
+    h2 { color: #ff8c00; }
+
+    input, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 7px;
+    }
+
+    button {
+      background: #ff8c00;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: 0.6; }
+
+    a { color: #ffb45c; }
+
+    .cf-turnstile { margin: 15px 0; }
+
+    #mensaje { min-height: 40px; }
+  </style>
+
+  <script
+    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+    async defer>
+  </script>
+</head>
+
+<body>
+  <div class="caja">
+    <h2>Recuperar contraseña</h2>
+
+    <p>Escribe el correo de tu cuenta.</p>
+
+    <form id="formRecuperacion">
+      <input
+        type="email"
+        id="correo"
+        placeholder="Correo electrónico"
+        autocomplete="email"
+        required>
+
+      <div class="cf-turnstile"
+           data-sitekey="TU_SITE_KEY">
+      </div>
+
+      <button type="submit">
+        Enviar correo
+      </button>
+    </form>
+
+    <p id="mensaje" role="status"></p>
+
+    <a href="login.html">Volver al login</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+
+  <script>
+    const formulario =
+      document.getElementById("formRecuperacion");
+
+    const mensaje =
+      document.getElementById("mensaje");
+
+    const boton =
+      formulario.querySelector("button");
+
+    formulario.addEventListener(
+      "submit",
+      async (evento) => {
+        evento.preventDefault();
+
+        const captchaToken =
+          window.turnstile?.getResponse();
+
+        if (!captchaToken) {
+          mensaje.textContent =
+            "Completa la verificación de seguridad.";
+          return;
+        }
+
+        boton.disabled = true;
+        mensaje.textContent =
+          "Procesando solicitud...";
+
+        const correo =
+          document.getElementById("correo")
+            .value.trim();
+
+        const redirectTo =
+          new URL("restablecer.html",
+                  window.location.href).href;
+
+        try {
+          const { error } =
+            await supabaseClient.auth
+              .resetPasswordForEmail(correo, {
+                redirectTo,
+                captchaToken
+              });
+
+          if (error) {
+            mensaje.textContent =
+              "No se pudo procesar la solicitud. " +
+              "Espera antes de volver a intentarlo.";
+          } else {
+            mensaje.textContent =
+              "Si existe una cuenta con ese correo, " +
+              "recibirás instrucciones para " +
+              "restablecer tu contraseña.";
+          }
+        } catch (error) {
+          mensaje.textContent =
+            "Error de conexión. Intenta más tarde.";
+        } finally {
+          boton.disabled = false;
+          window.turnstile?.reset();
+        }
+      }
+    );
+  </script>
+</body>
+</html>
