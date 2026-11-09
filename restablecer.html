@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <title>Crear contraseña | AutoPartes Pro</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #101827;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    main {
+      background: #1c293b;
+      padding: 32px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 380px;
+      box-sizing: border-box;
+    }
+
+    h1 { color: #ff8c00; }
+
+    input, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 13px;
+      margin-top: 12px;
+      border-radius: 7px;
+      font-size: 15px;
+    }
+
+    input {
+      background: #101827;
+      color: white;
+      border: 1px solid #435169;
+    }
+
+    button {
+      background: #ff8c00;
+      color: #101827;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: 0.6; }
+    #mensaje { color: #ffb5b5; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>AutoPartes Pro</h1>
+    <p>Establece tu contraseña</p>
+
+    <form id="formPassword" hidden>
+      <label for="password">Nueva contraseña</label>
+      <input
+        id="password"
+        type="password"
+        minlength="12"
+        autocomplete="new-password"
+        required
+      >
+      <button type="submit">Guardar contraseña</button>
+    </form>
+
+    <p id="mensaje" role="status">
+      Verificando enlace...
+    </p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+
+  <script>
+    const form = document.getElementById("formPassword");
+    const mensaje = document.getElementById("mensaje");
+    let autorizado = false;
+
+    async function verificarEnlace() {
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get("code");
+      const tokenHash = url.searchParams.get("token_hash");
+      const type = url.searchParams.get("type");
+      const hashParams = new URLSearchParams(
+        window.location.hash.slice(1)
+      );
+
+      const esRecuperacion =
+        type === "recovery" ||
+        hashParams.get("type") === "recovery";
+
+      try {
+        let error = null;
+
+        if (code) {
+          const resultado =
+            await supabaseClient.auth.exchangeCodeForSession(code);
+          error = resultado.error;
+        } else if (tokenHash && type === "recovery") {
+          const resultado =
+            await supabaseClient.auth.verifyOtp({
+              token_hash: tokenHash,
+              type: "recovery"
+            });
+          error = resultado.error;
+        } else if (!esRecuperacion) {
+          throw new Error("Enlace no válido");
+        }
+
+        if (error) throw error;
+
+        const { data } = await supabaseClient.auth.getSession();
+
+        if (!data.session || !esRecuperacion) {
+          throw new Error("Sesión no válida");
+        }
+
+        autorizado = true;
+        form.hidden = false;
+        mensaje.textContent = "Enlace verificado.";
+        window.history.replaceState(
+          {},
+          "",
+          window.location.pathname
+        );
+      } catch (error) {
+        mensaje.textContent =
+          "El enlace no es válido o ha expirado. Solicita otro.";
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!autorizado) return;
+
+      const boton = form.querySelector("button");
+      boton.disabled = true;
+      mensaje.textContent = "Guardando...";
+
+      const { error } = await supabaseClient.auth.updateUser({
+        password: document.getElementById("password").value
+      });
+
+      if (error) {
+        mensaje.textContent =
+          "No se pudo guardar. Intenta nuevamente.";
+        boton.disabled = false;
+        return;
+      }
+
+      await supabaseClient.auth.signOut();
+      mensaje.textContent =
+        "Contraseña guardada. Ya puedes iniciar sesión.";
+      form.hidden = true;
+    });
+
+    verificarEnlace();
+  </script>
+</body>
+</html>
