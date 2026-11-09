@@ -150,12 +150,25 @@
     boton.disabled = true;
     mensaje.textContent = "Verificando acceso...";
 
-    try {
-      const { data, error } =
-        await supabaseClient.auth.signInWithPassword({
-          email: email,
-          password: password
-        });
+    try {   
+const captchaToken =
+  window.turnstile?.getResponse();
+
+if (!captchaToken) {
+  mensaje.textContent =
+    "Completa la verificación de seguridad.";
+  return;
+}
+
+const { data, error } =
+  await supabaseClient.auth.signInWithPassword({
+    email,
+    password,
+    options: {
+      captchaToken: captchaToken
+    }
+  });
+
 
       if (error || !data.user) {
         mensaje.textContent =
