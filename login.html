@@ -125,16 +125,65 @@
     <a href="index.html">Volver al inicio</a>
   </main>
 
-  <script>
-    document.getElementById("formLogin")
-      .addEventListener("submit", function(event) {
-        event.preventDefault();
+  
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
 
-        document.getElementById("mensaje")
-          .textContent =
-          "Próximamente conectaremos el acceso con Supabase.";
-      });
-  </script>
-</body>
-</html>
+<script>
+  const formulario = document.getElementById("formLogin");
+  const mensaje = document.getElementById("mensaje");
+  const boton = formulario.querySelector("button");
 
+  formulario.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const email = document.getElementById("correo").value.trim();
+    const password = document.getElementById("password").value;
+
+    boton.disabled = true;
+    mensaje.textContent = "Verificando acceso...";
+
+    try {
+      const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
+
+      if (error || !data.user) {
+        mensaje.textContent =
+          "No se pudo iniciar sesión. Revisa tus datos.";
+        return;
+      }
+
+      const { data: perfil, error: errorPerfil } =
+        await supabaseClient
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
+
+      if (errorPerfil || !perfil) {
+        await supabaseClient.auth.signOut();
+        mensaje.textContent =
+          "No se pudo verificar tu perfil.";
+        return;
+      }
+
+      if (!["programador", "administrador", "usuario"]
+          .includes(perfil.role)) {
+        await supabaseClient.auth.signOut();
+        mensaje.textContent = "Acceso no autorizado.";
+        return;
+      }
+
+      window.location.replace("panel.html");
+
+    } catch (error) {
+      mensaje.textContent =
+        "Error de conexión. Intenta nuevamente.";
+    } finally {
+      boton.disabled = false;
+    }
+  });
+</script>
