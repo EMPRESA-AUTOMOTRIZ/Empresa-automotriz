@@ -1,1 +1,195 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <title>Empleados | AutoPartes Pro</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #101827;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background: #1c293b;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    h1, h2 { color: #ff8c00; }
+
+    main {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .tarjeta {
+      background: #1c293b;
+      padding: 25px;
+      border-radius: 12px;
+      margin-top: 25px;
+    }
+
+    button, .boton {
+      background: #ff8c00;
+      color: #101827;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 7px;
+      font-weight: bold;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #435169;
+    }
+
+    th { color: #ff8c00; }
+
+    #contenido { display: none; }
+
+    #estado {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .tabla {
+      overflow-x: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <p id="estado">Verificando permisos...</p>
+
+  <div id="contenido">
+    <header>
+      <h2>AutoPartes Pro</h2>
+      <a class="boton" href="panel.html">
+        Volver al panel
+      </a>
+    </header>
+
+    <main>
+      <h1>Administración de empleados</h1>
+      <p>Gestión del personal de la empresa</p>
+
+      <section class="tarjeta">
+        <h2>Empleados registrados</h2>
+        <p id="mensaje">
+          Cargando información...
+        </p>
+
+        <div class="tabla">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Rol</th>
+              </tr>
+            </thead>
+            <tbody id="listaUsuarios"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Registrar empleado</h2>
+        <p>
+          Próximamente los administradores
+          podrán enviar invitaciones y
+          asignar permisos desde aquí.
+        </p>
+        <button disabled>
+          Registrar empleado
+        </button>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+
+  <script>
+    async function iniciar() {
+      const estado = document.getElementById("estado");
+      const contenido = document.getElementById("contenido");
+      const mensaje = document.getElementById("mensaje");
+
+      try {
+        const { data, error } =
+          await supabaseClient.auth.getUser();
+
+        if (error || !data.user) {
+          window.location.replace("login.html");
+          return;
+        }
+
+        const { data: perfil, error: errorPerfil } =
+          await supabaseClient
+            .from("profiles")
+            .select("full_name, role")
+            .eq("id", data.user.id)
+            .single();
+
+        if (errorPerfil || !perfil ||
+            !["programador", "administrador"]
+              .includes(perfil.role)) {
+          estado.textContent = "Acceso no autorizado.";
+          return;
+        }
+
+        contenido.style.display = "block";
+        estado.style.display = "none";
+
+        // Por ahora solo mostramos el perfil propio.
+        // No existe una política para consultar
+        // los perfiles de otros trabajadores.
+        const fila = document.createElement("tr");
+        const nombre = document.createElement("td");
+        const rol = document.createElement("td");
+
+        nombre.textContent =
+          perfil.full_name || data.user.email;
+        rol.textContent = perfil.role;
+
+        fila.append(nombre, rol);
+        document.getElementById("listaUsuarios")
+          .appendChild(fila);
+
+        mensaje.textContent =
+          "Vista inicial. La lista completa de empleados " +
+          "se habilitará con permisos administrativos.";
+
+      } catch (error) {
+        estado.textContent =
+          "No se pudo verificar el acceso.";
+      }
+    }
+
+    iniciar();
+  </script>
+</body>
+</html>
+
