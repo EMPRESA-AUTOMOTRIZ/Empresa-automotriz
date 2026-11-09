@@ -121,9 +121,15 @@
 
         const { data } = await supabaseClient.auth.getSession();
 
-        if (!data.session || !esRecuperacion) {
-          throw new Error("Sesión no válida");
-        }
+        
+if (!data.session) {
+  throw new Error("Sesión no válida");
+}
+
+if (!esRecuperacion && !code) {
+  throw new Error("Enlace no válido");
+}
+
 
         autorizado = true;
         form.hidden = false;
