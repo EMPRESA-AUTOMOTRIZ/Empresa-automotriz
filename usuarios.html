@@ -95,8 +95,8 @@
       <h1>Administración de empleados</h1>
       <p>Gestión del personal de la empresa</p>
 
-      <section class="tarjeta">
-        <h2>Empleados registrados</h2>
+     <section class="tarjeta" id="altaEmpleado" hidden>
+  <h2>Registrar empleado</h2>
         <p id="mensaje">
           Cargando información...
         </p>
@@ -160,8 +160,9 @@
           return;
         }
 
-        contenido.style.display = "block";
-        estado.style.display = "none";
+        if (perfil.role === "administrador") {
+  document.getElementById("altaEmpleado").hidden = false;
+}
 
         // Por ahora solo mostramos el perfil propio.
         // No existe una política para consultar
