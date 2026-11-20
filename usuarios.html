@@ -8,140 +8,459 @@
   <title>Empleados | AutoPartes Pro</title>
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6fa;
+      color: #17243a;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    #estado {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
       background: #101827;
       color: white;
-      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 25px;
+    }
+
+    #contenido {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #101827;
+      color: white;
+      padding: 25px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .logo {
+      text-align: center;
+      padding: 15px 5px;
+    }
+
+    .logo-icono {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .logo h2 {
+      margin: 0;
+      color: white;
+      font-size: 21px;
+    }
+
+    .logo p {
+      font-size: 12px;
+      color: #aebbd0;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .menu a {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border-radius: 8px;
+      color: #e0e7f1;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .menu a:hover {
+      background: #243550;
+    }
+
+    .menu a.activo {
+      background: #284b80;
+      color: white;
+    }
+
+    .menu a span {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+
+    .salir {
+      margin-top: auto;
+      padding: 13px;
+      border: 1px solid #45536a;
+      border-radius: 8px;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .salir:hover {
+      background: #9c3030;
+    }
+
+    .principal {
+      flex: 1;
+      min-width: 0;
     }
 
     header {
-      background: #1c293b;
-      padding: 20px;
+      background: white;
+      padding: 25px 35px;
+      border-bottom: 1px solid #e2e6ed;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 25px;
+    }
+
+    .usuario {
+      font-size: 13px;
+      color: #66758c;
+      text-align: right;
+    }
+
+    main {
+      padding: 35px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .encabezado {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 15px;
+      gap: 20px;
       flex-wrap: wrap;
+      margin-bottom: 25px;
     }
 
-    h1, h2 { color: #ff8c00; }
+    .encabezado h2 {
+      font-size: 29px;
+      margin: 0 0 10px;
+    }
 
-    main {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 20px;
+    .encabezado p {
+      color: #66758c;
+      margin: 0;
+    }
+
+    .boton {
+      display: inline-block;
+      background: #ff8c00;
+      color: #101827;
+      padding: 13px 20px;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .boton:hover {
+      background: #ffa333;
     }
 
     .tarjeta {
-      background: #1c293b;
+      background: white;
       padding: 25px;
-      border-radius: 12px;
-      margin-top: 25px;
+      border-radius: 14px;
+      border: 1px solid #e2e6ed;
+      margin-top: 20px;
     }
 
-    button, .boton {
-      background: #ff8c00;
-      color: #101827;
-      padding: 12px 18px;
-      border: none;
-      border-radius: 7px;
-      font-weight: bold;
-      text-decoration: none;
-      cursor: pointer;
+    .tarjeta h3 {
+      margin-top: 0;
+    }
+
+    .tabla {
+      overflow-x: auto;
     }
 
     table {
       width: 100%;
+      min-width: 650px;
       border-collapse: collapse;
       margin-top: 20px;
     }
 
     th, td {
       text-align: left;
-      padding: 12px;
-      border-bottom: 1px solid #435169;
+      padding: 16px 12px;
+      border-bottom: 1px solid #e2e6ed;
     }
 
-    th { color: #ff8c00; }
-
-    #contenido { display: none; }
-
-    #estado {
-      text-align: center;
-      padding: 40px;
+    th {
+      color: #66758c;
+      background: #f4f6fa;
+      font-size: 13px;
     }
 
-    .tabla {
-      overflow-x: auto;
+    td {
+      font-size: 14px;
+    }
+
+    .etiqueta-rol {
+      background: #e7eefb;
+      color: #284b80;
+      padding: 7px 11px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .mensaje {
+      color: #66758c;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .seguridad {
+      background: #fff4e6;
+      border: 1px solid #ffdfb0;
+      padding: 18px;
+      border-radius: 10px;
+      margin-top: 25px;
+      color: #754900;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 760px) {
+      #contenido {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        padding: 15px;
+      }
+
+      .logo {
+        padding: 5px;
+      }
+
+      .logo-icono {
+        font-size: 30px;
+      }
+
+      .menu {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .menu a {
+        font-size: 12px;
+      }
+
+      header {
+        padding: 20px;
+        flex-wrap: wrap;
+      }
+
+      header h1 {
+        font-size: 20px;
+      }
+
+      main {
+        padding: 20px;
+      }
+
+      .tarjeta {
+        padding: 15px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <p id="estado">Verificando permisos...</p>
 
-  <div id="contenido">
-    <header>
-      <h2>AutoPartes Pro</h2>
-      <a class="boton" href="panel.html">
-        Volver al panel
-      </a>
-    </header>
+  <div id="estado">
+    Verificando acceso seguro...
+  </div>
 
-    <main>
-      <h1>Administración de empleados</h1>
-      <p>Gestión del personal de la empresa</p>
+  <div id="contenido" hidden>
 
-     <section class="tarjeta" id="altaEmpleado" hidden>
-  <h2>Registrar empleado</h2>
-        <p id="mensaje">
-          Cargando información...
-        </p>
+    <aside class="sidebar">
 
-        <div class="tabla">
-          <table>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Rol</th>
-              </tr>
-            </thead>
-            <tbody id="listaUsuarios"></tbody>
-          </table>
+      <div class="logo">
+        <div class="logo-icono">⚙️</div>
+        <h2>AUTOPARTES PRO</h2>
+        <p>Tu auto, en buenas manos</p>
+      </div>
+
+      <nav class="menu" aria-label="Menu principal">
+
+        <a href="panel.html">
+          <span>🏠</span> Inicio
+        </a>
+
+        <a href="panel.html?seccion=clientes">
+          <span>👥</span> Clientes
+        </a>
+
+        <a href="panel.html?seccion=almacen">
+          <span>🏬</span> Almacen
+        </a>
+
+        <a href="panel.html?seccion=inventario">
+          <span>📦</span> Inventario
+        </a>
+
+        <a href="panel.html?seccion=ventas">
+          <span>📈</span> Ventas
+        </a>
+
+        <a href="panel.html?seccion=entregas">
+          <span>🚚</span> Entregas
+        </a>
+
+        <a href="usuarios.html" class="activo">
+          <span>🛡️</span> Usuarios y seguridad
+        </a>
+
+        <a href="panel.html?seccion=reportes">
+          <span>📊</span> Reportes
+        </a>
+
+        <a href="panel.html?seccion=configuracion">
+          <span>⚙️</span> Configuracion
+        </a>
+
+      </nav>
+
+      <button id="salir" class="salir">
+        🚪 Cerrar sesion
+      </button>
+
+    </aside>
+
+    <div class="principal">
+
+      <header>
+        <h1>Usuarios y seguridad</h1>
+
+        <div class="usuario">
+          <div id="nombreUsuario"></div>
+          <div id="rolUsuario"></div>
         </div>
-      </section>
+      </header>
 
-      <section class="tarjeta">
-        <h2>Registrar empleado</h2>
-        <p>
-          Próximamente los administradores
-          podrán enviar invitaciones y
-          asignar permisos desde aquí.
-        </p>
-        <button disabled>
-          Registrar empleado
-        </button>
-      </section>
-    </main>
+      <main>
+
+        <div class="encabezado">
+
+          <div>
+            <h2>Empleados</h2>
+            <p>
+              Administracion del personal de la empresa
+            </p>
+          </div>
+
+          <a id="altaEmpleado"
+             class="boton"
+             href="crear-empleado.html"
+             hidden>
+            + Crear empleado
+          </a>
+
+        </div>
+
+        <section class="tarjeta">
+
+          <h3>Empleados registrados</h3>
+
+          <p id="mensaje" class="mensaje">
+            Cargando informacion...
+          </p>
+
+          <div class="tabla">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Correo</th>
+                  <th>Area</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+
+              <tbody id="listaUsuarios"></tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+        <div class="seguridad">
+          🔒 <strong>Seguridad del sistema</strong>
+
+          <p>
+            El alta de empleados esta reservada
+            exclusivamente a los administradores.
+            Las cuentas de programadores no pueden
+            modificarse desde este apartado.
+          </p>
+
+          <p>
+            La creacion de cuentas reales se encuentra
+            pendiente de habilitacion.
+          </p>
+        </div>
+
+      </main>
+
+    </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase.js"></script>
 
   <script>
+
+    const estado = document.getElementById("estado");
+    const contenido = document.getElementById("contenido");
+    const mensaje = document.getElementById("mensaje");
+
     async function iniciar() {
-      const estado = document.getElementById("estado");
-      const contenido = document.getElementById("contenido");
-      const mensaje = document.getElementById("mensaje");
 
       try {
+
         const { data, error } =
           await supabaseClient.auth.getUser();
 
         if (error || !data.user) {
+
+          if (error && error.name !== "AuthSessionMissingError") {
+            estado.textContent =
+              "No se pudo verificar la sesion. Intenta nuevamente.";
+            return;
+          }
+
           window.location.replace("login.html");
           return;
         }
@@ -153,44 +472,127 @@
             .eq("id", data.user.id)
             .single();
 
-        if (errorPerfil || !perfil ||
-            !["programador", "administrador"]
-              .includes(perfil.role)) {
-          estado.textContent = "Acceso no autorizado.";
+        if (errorPerfil || !perfil) {
+
+          estado.textContent =
+            "No se pudieron verificar tus permisos.";
+
           return;
         }
 
-        if (perfil.role === "administrador") {
-  document.getElementById("altaEmpleado").hidden = false;
-}
+        if (!["programador", "administrador"]
+              .includes(perfil.role)) {
 
-        // Por ahora solo mostramos el perfil propio.
-        // No existe una política para consultar
-        // los perfiles de otros trabajadores.
-        const fila = document.createElement("tr");
-        const nombre = document.createElement("td");
-        const rol = document.createElement("td");
+          window.location.replace("panel.html");
+          return;
+        }
 
-        nombre.textContent =
+        const nombre =
           perfil.full_name || data.user.email;
-        rol.textContent = perfil.role;
 
-        fila.append(nombre, rol);
+        document.getElementById("nombreUsuario")
+          .textContent = nombre;
+
+        document.getElementById("rolUsuario")
+          .textContent = "Rol: " + perfil.role;
+
+        if (perfil.role === "administrador") {
+
+          document.getElementById("altaEmpleado")
+            .hidden = false;
+
+        }
+
+        const fila = document.createElement("tr");
+
+        const celdaNombre =
+          document.createElement("td");
+
+        const celdaCorreo =
+          document.createElement("td");
+
+        const celdaArea =
+          document.createElement("td");
+
+        const celdaRol =
+          document.createElement("td");
+
+        const celdaEstado =
+          document.createElement("td");
+
+        const etiquetaRol =
+          document.createElement("span");
+
+        celdaNombre.textContent = nombre;
+
+        celdaCorreo.textContent =
+          data.user.email || "No disponible";
+
+        celdaArea.textContent = "No registrada";
+
+        etiquetaRol.className = "etiqueta-rol";
+        etiquetaRol.textContent = perfil.role;
+
+        celdaRol.appendChild(etiquetaRol);
+
+        celdaEstado.textContent = "Sesion verificada";
+
+        fila.append(
+          celdaNombre,
+          celdaCorreo,
+          celdaArea,
+          celdaRol,
+          celdaEstado
+        );
+
         document.getElementById("listaUsuarios")
           .appendChild(fila);
 
         mensaje.textContent =
-          "Vista inicial. La lista completa de empleados " +
-          "se habilitará con permisos administrativos.";
+          "Actualmente se muestra tu propio perfil. " +
+          "La lista completa requiere permisos adicionales.";
+
+        estado.hidden = true;
+        contenido.hidden = false;
 
       } catch (error) {
+
+        console.error("Error de acceso:", error);
+
         estado.textContent =
-          "No se pudo verificar el acceso.";
+          "No se pudo verificar el acceso. " +
+          "Recarga la pagina.";
+
       }
+
     }
 
+    document.getElementById("salir")
+      .addEventListener("click", async () => {
+
+        try {
+
+          const { error } =
+            await supabaseClient.auth.signOut();
+
+          if (error) {
+            alert("No se pudo cerrar la sesion.");
+            return;
+          }
+
+          window.location.replace("login.html");
+
+        } catch (error) {
+
+          alert("No se pudo cerrar la sesion.");
+
+        }
+
+      });
+
     iniciar();
+
   </script>
+
 </body>
 </html>
-
