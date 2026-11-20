@@ -88,7 +88,9 @@
 </head>
 
 <body>
-  <main class="caja">
+  <p id="estado">Verificando permisos...</p>
+
+<main class="caja" id="contenido" hidden>
     <h1>Alta de empleado</h1>
 
     <p>
@@ -140,7 +142,70 @@
   </main>
 
   <script>
-    document.getElementById("formEmpleado")
+    
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+  const estado = document.getElementById("estado");
+  const contenido = document.getElementById("contenido");
+  const formulario = document.getElementById("formEmpleado");
+  const mensaje = document.getElementById("mensaje");
+
+  async function verificarAdministrador() {
+    try {
+      const { data, error } =
+        await supabaseClient.auth.getUser();
+
+      if (error || !data.user) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      const { data: perfil, error: errorPerfil } =
+        await supabaseClient
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
+
+      if (errorPerfil || !perfil) {
+        estado.textContent =
+          "No se pudieron verificar tus permisos.";
+        return;
+      }
+
+      if (perfil.role !== "administrador") {
+        estado.textContent =
+          "Acceso restringido. " +
+          "Solo los administradores pueden " +
+          "acceder al alta de empleados.";
+        return;
+      }
+
+      estado.hidden = true;
+      contenido.hidden = false;
+
+    } catch (error) {
+      console.error("Error de verificación:", error);
+
+      estado.textContent =
+        "No se pudo verificar el acceso.";
+    }
+  }
+
+  formulario.addEventListener("submit", function(evento) {
+    evento.preventDefault();
+
+    mensaje.textContent =
+      "El formulario está preparado, pero " +
+      "la creación de cuentas reales todavía " +
+      "requiere un servicio seguro de autenticación.";
+  });
+
+  verificarAdministrador();
+</script>
+
       .addEventListener("submit", function(evento) {
         evento.preventDefault();
 
